@@ -226,7 +226,7 @@ const minD = new Date(Math.min(...D.map(r=>r.sent))), maxD = new Date(Math.max(.
 document.getElementById('periodPill').textContent = `${fd(minD)} – ${fd(maxD)}`;
 const FIL = {
   fTpl:['template', uniq(D.map(r=>r.template)).sort()], fType:['type',['1 Way','2 Way']],
-  fResp:['rs',['Responded','No Response','Not Delivered']]
+  fResp:['rs',['Responded','No Response']]
 };
 for (const [id,[,opts]] of Object.entries(FIL)) {
   const el = document.getElementById(id);
