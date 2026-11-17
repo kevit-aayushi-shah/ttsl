@@ -253,9 +253,6 @@ function renderFunnel(A){
     {n:'Messages Read', sub:'Read timestamp', v:A.rd, prev:A.d, col:C.blue2},
     {n:'Form Responses Received', sub:'Form response captured', v:A.rs, prev:A.rd, col:C.orange},
   ];
-  // biggest customer drop-off (by message count): Delivered→Read or Read→Response; delivery failures are excluded
-  const lost = s => Math.max(s.prev - s.v, 0);
-  const big = lost(st[3]) >= lost(st[2]) ? st[3] : st[2];
   // nice y-axis scale
   const mx = Math.max(A.s, 1), raw = mx/5, mag = Math.pow(10, Math.floor(Math.log10(raw)));
   const step = [1,2,2.5,5,10].map(m=>m*mag).find(x=>x>=raw), top = Math.ceil(mx/step)*step;
@@ -264,10 +261,7 @@ function renderFunnel(A){
   const gl = ticks.slice(1).map(t=>`<div class="gl" style="bottom:${t/top*100}%"></div>`).join('');
   const bars = st.map(s=>`<div class="bcol" title="${s.n}: ${N(s.v)} messages"><div class="bv">${N(s.v)}</div><div class="b" style="height:${s.v/top*100}%;background:${s.col}"></div></div>`).join('');
   const xl = st.map(s=>`<div>${s.n}<small>${s.sub}</small></div>`).join('');
-  const notes = [`<span>▼ ${N(lost(st[1]))} failed in delivery – delivery failure, not customer drop-off</span>`,
-    `<span class="${big===st[2]&&lost(st[2])>0?'big':''}">▼ ${N(lost(st[2]))} delivered but not read${big===st[2]&&lost(st[2])>0?' · biggest customer drop-off':''}</span>`,
-    `<span class="${big===st[3]&&lost(st[3])>0?'big':''}">▼ ${N(lost(st[3]))} fewer form responses than read messages${big===st[3]&&lost(st[3])>0?' · biggest customer drop-off':''}</span>`].join('');
-  document.getElementById('funnelBox').innerHTML = `<div class="bchart"><div class="yaxis">${y}</div><div class="plot">${gl}<div class="bars">${bars}</div></div><div class="xlab">${xl}</div></div><div class="bnotes">${notes}</div>`;
+  document.getElementById('funnelBox').innerHTML = `<div class="bchart"><div class="yaxis">${y}</div><div class="plot">${gl}<div class="bars">${bars}</div></div><div class="xlab">${xl}</div></div>`;
   const rows = [
     ['Messages Sent', A.s, 'All WABA messages'],
     ['Messages Delivered', A.d, 'Delivered timestamp received'],
@@ -310,8 +304,6 @@ document.getElementById('defTbl').innerHTML = `<thead><tr><th>Metric</th><th>How
  ['Messages Without Response','Delivered AND response fields blank','Customer non-response; excludes failed messages'],
  ['Failed Messages','Count with a Failed reason (FWD Movement)','Delivery failures; never a customer drop-off'],
  ['Failed reason (FWD Movement)','Failed messages counted per reason, ranked highest first','Shows why messages were not delivered and which causes to fix first'],
- ['Messages lost at a funnel stage','Previous stage count − current stage count','Sent → Delivered → Read → Form Responses; the loss at the delivery stage equals failed messages'],
- ['Biggest customer drop-off','Larger of the losses at Delivered → Read and Read → Form Responses','Where most reached customers stop progressing; delivery failures are excluded'],
 ].map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('') + '</tbody>';
 // nav highlight
 const secs = [...document.querySelectorAll('main section')], links = [...document.querySelectorAll('#nav a')];
