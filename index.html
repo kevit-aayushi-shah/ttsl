@@ -271,16 +271,16 @@ footer{max-width:1500px;margin:0 auto;padding:0 28px 30px;color:var(--ink-3);fon
     <div class="rcards">
       <button class="rcard" data-open-create>
         <span class="rcard-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>
-        <span><b>WABA Detailed Report</b><small>One row per WABA message for each Circuit ID / Pilot Number, with sent, delivered and read times, response details and failure reasons. Messages without a response are included with blank response fields.</small></span>
+        <span><b>Detailed Report</b><small>One row per WABA message for each Circuit ID / Pilot Number, with sent, delivered and read times, response details and failure reasons. Messages without a response are included with blank response fields.</small></span>
       </button>
     </div>
   </div>
 
   <div id="rCreate" hidden>
-    <div class="crumb"><a href="javascript:void 0" data-rtab="overview">Overview</a><span>›</span>WABA Detailed Report</div>
+    <div class="crumb"><a href="javascript:void 0" data-rtab="overview">Overview</a><span>›</span>Detailed Report</div>
     <section class="card">
       <h3 class="blk">Report Type</h3>
-      <div class="rtype on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg><span>WABA Detailed Report</span></div>
+      <div class="rtype on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg><span>Detailed Report</span></div>
       <h3 class="blk">Report Filter</h3>
       <div class="fbox">
         <div class="ctl">
@@ -296,7 +296,7 @@ footer{max-width:1500px;margin:0 auto;padding:0 28px 30px;color:var(--ink-3);fon
       <div class="note"><b>Note :</b> Your report may take a few moments to generate. You can check its status in Downloads.</div>
     </section>
     <div class="cfoot">
-      <div class="rname"><input id="rName" value="WABA Detailed Report" aria-label="Report name"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F56D23" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
+      <div class="rname"><input id="rName" value="Detailed Report" aria-label="Report name"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F56D23" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
       <button class="obtn" id="rCreateBtn" disabled>Create</button>
     </div>
   </div>
@@ -568,7 +568,6 @@ function doSearch(){
   document.getElementById('rResult').hidden = !R.length;
   if (!R.length) { hint.className = 'rhint warn'; hint.textContent = q.id ? `No messages found for "${q.id}" in ${rangeLabel(q)}.` : `No messages found in ${rangeLabel(q)}.`; return; }
   hint.className = 'rhint'; hint.textContent = '';
-  if (!rNameEdited) document.getElementById('rName').value = `WABA Report – ${idLabel(q,R)} – ${rangeLabel(q)}`;
   const ids = uniq(R.map(r=>r.cid)), box = document.getElementById('rResult');
   const all = !q.id, one = ids.length === 1;
   box.className = 'scope' + (one ? ' one' : '');
@@ -577,7 +576,7 @@ function doSearch(){
   const title = one ? `The report will be downloaded for 1 Circuit ID / Pilot Number: ${ids[0]}`
               : all ? `The report will be downloaded for all Circuit IDs / Pilot Numbers`
               : `The report will be downloaded for ${N(ids.length)} Circuit IDs / Pilot Numbers matching "${q.id}"`;
-  box.innerHTML = `<div class="sic">${icon}</div><div><b>${esc(title)}</b><span>Report range: ${rangeLabel(q)} · includes messages without a response</span></div><div class="badge">${one ? 'Single record' : all ? 'All records' : 'Multiple records'}</div>`;
+  box.innerHTML = `<div class="sic">${icon}</div><div><b>${esc(title)}</b><span>Report range: ${rangeLabel(q)}</span></div><div class="badge">${one ? 'Single record' : all ? 'All records' : 'Multiple records'}</div>`;
 }
 document.getElementById('rSearch').onclick = doSearch;
 rOrder.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
@@ -624,7 +623,7 @@ function toast(msg){
 document.getElementById('rCreateBtn').onclick = () => {
   if (!rQuery) return;
   const R = queryRows(rQuery);
-  const entry = {id: Date.now(), name: document.getElementById('rName').value.trim() || 'WABA Detailed Report', q: {...rQuery}, ids: idLabel(rQuery, R), type: rType, at: new Date().toISOString(), status: 'gen', n: R.length};
+  const entry = {id: Date.now(), name: document.getElementById('rName').value.trim() || 'Detailed Report', q: {...rQuery}, ids: idLabel(rQuery, R), type: rType, at: new Date().toISOString(), status: 'gen', n: R.length};
   DL.unshift(entry); saveDL();
   toast('Report created successfully.');
   showReportPage('downloads');
