@@ -96,10 +96,16 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .c-bad{background:var(--bad-bg);color:#B42318}
 .bar-cell{display:flex;align-items:center;width:100%;min-width:110px}
 .bar-cell i{display:block;height:10px;border-radius:5px;background:var(--orange)}
-.dtiles .tile{grid-column:span 3!important;padding:20px 22px;min-height:0;gap:0}
+.srch{position:relative;display:flex;align-items:center;height:44px;border:1px solid var(--field);border-radius:6px;background:#fff;padding:0 12px;gap:8px;min-width:280px;color:var(--ink-3)}
+.srch label{position:absolute;left:12px;top:-8px;background:#fff;padding:0 4px;font-size:11px;font-weight:600;color:var(--ink-3)}
+.srch input{border:0;outline:0;font:inherit;font-size:15px;font-weight:500;color:var(--ink);background:transparent;flex:1;min-width:0}
+.srch:focus-within{outline:2px solid var(--orange-2)}
+#dHint{color:var(--ink-2);font-weight:600}#dHint.warn{color:#B42318}
+.dtiles{grid-template-columns:repeat(5,minmax(0,1fr))}
+.dtiles .tile{grid-column:auto!important;padding:20px 22px;min-height:0;gap:0}
 .dtiles .tile .val{font-size:24px}.dtiles .tile .lab{font-size:14.5px}
-@media(max-width:1200px){.dtiles .tile{grid-column:span 6!important}}
-@media(max-width:640px){.dtiles .tile{grid-column:span 12!important}}
+@media(max-width:1200px){.dtiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){.dtiles{grid-template-columns:1fr}.srch{min-width:0;flex:1 1 100%}}
 .dh{margin:22px 0 10px;font-size:15px;font-weight:600;color:var(--ink-2)}
 table.fmt th{background:var(--navy);color:#fff;font-size:12.5px;font-weight:600;white-space:normal;min-width:120px;vertical-align:middle;text-align:center;border-right:1px solid rgba(255,255,255,.18);border-bottom:1px solid rgba(255,255,255,.18)}
 table.fmt th.grp,table.fmt th.grp2{background:var(--orange)}
@@ -173,13 +179,14 @@ footer{max-width:1500px;margin:0 auto;padding:0 28px 30px;color:var(--ink-3);fon
   <div class="chead">
     <h2>Download Report</h2>
     <div class="ctl">
-      <div class="sel"><label>Circuit ID / Pilot Number</label><select id="dOrder" autocomplete="off"></select></div>
+      <div class="srch"><label>Circuit ID / Pilot Number</label><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="dOrder" list="dOrderList" placeholder="Search – all IDs by default" autocomplete="off" spellcheck="false"><datalist id="dOrderList"></datalist></div>
       <div class="daterange" title="Message sent date range">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>
         <input type="date" id="dFrom" autocomplete="off" aria-label="From"><span>–</span><input type="date" id="dTo" autocomplete="off" aria-label="To">
       </div>
       <button class="obtn" id="dGo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg>Download Excel</button>
     </div>
+    <p class="sub" id="dHint"></p>
     <p class="sub">WABA report in the TTBS WhatsApp Report format. Every message sent in the selected range is included, whether or not the customer responded; response columns are left blank where no response was received. The dashboard filters above do not apply to this download.</p>
   </div>
   <div class="tiles dtiles" id="dStats"></div>
@@ -407,20 +414,28 @@ const XLSX_W = (() => {
 
 // ---------- download report ----------
 const dOrder = document.getElementById('dOrder'), dFrom = document.getElementById('dFrom'), dTo = document.getElementById('dTo');
-dOrder.innerHTML = '<option value="">All orders</option>' + uniq(D.map(r=>r.cid)).sort().map(c=>`<option>${esc(c)}</option>`).join('');
+const ALL_IDS = uniq(D.map(r=>r.cid)).sort();
+document.getElementById('dOrderList').innerHTML = ALL_IDS.map(c=>`<option value="${esc(c)}"></option>`).join('');
+const dQ = () => dOrder.value.trim().toUpperCase();
 dOrder.value = ''; dFrom.value = iso(minD); dTo.value = iso(maxD); dFrom.min = dTo.min = iso(minD); dFrom.max = dTo.max = iso(maxD);
 function dRows(){
   const from = dFrom.value ? new Date(dFrom.value+'T00:00:00') : null, to = dTo.value ? new Date(dTo.value+'T23:59:59') : null;
-  return D.filter(r => (!dOrder.value || r.cid === dOrder.value) && (!from || r.sent >= from) && (!to || r.sent <= to))
+  const q = dQ();
+  return D.filter(r => (!q || r.cid.toUpperCase().includes(q)) && (!from || r.sent >= from) && (!to || r.sent <= to))
           .sort((a,b) => a.cid < b.cid ? -1 : a.cid > b.cid ? 1 : a.sent - b.sent);
 }
 function dRender(){
   const R = dRows(), A = agg(R);
-  const t = [['Messages in report', A.s], ['Orders', A.orders], ['With response', A.rs], ['Blank response fields', A.s - A.rs]];
+  const t = [['Sent', A.s], ['Delivered', A.d], ['Read', A.rd], ['With Response', A.rs], ['Without Response', A.nr]];
+  const q = dQ(), ids = ALL_IDS.filter(c => !q || c.toUpperCase().includes(q)), hint = document.getElementById('dHint');
+  hint.className = 'sub' + (ids.length ? '' : ' warn');
+  hint.textContent = !q ? `All ${N(ids.length)} Circuit IDs / Pilot Numbers included` : !ids.length ? `No Circuit ID / Pilot Number matches "${dOrder.value.trim()}"`
+    : ids.length === 1 ? `Circuit ID / Pilot Number: ${ids[0]}` : `${N(ids.length)} Circuit IDs / Pilot Numbers match "${dOrder.value.trim()}"`;
   document.getElementById('dStats').innerHTML = t.map(([l,v])=>`<div class="tile"><div><div class="val">${N(v)}</div><div class="lab">${l}</div></div></div>`).join('');
   document.getElementById('dGo').disabled = !R.length;
 }
-[dOrder,dFrom,dTo].forEach(e=>e.addEventListener('change', dRender));
+[dFrom,dTo].forEach(e=>e.addEventListener('change', dRender));
+['input','change','search'].forEach(ev=>dOrder.addEventListener(ev, dRender));
 addEventListener('pageshow', () => dRender());
 const REPORT_HEAD = ['Circuit ID / Pilot Number ','Contact Number ','Name','Company Name','Product Name ','Local Contact Person name ','Local Contact Person Mobile Number','Message Template Name ','Message sent date and time ','Message delivered date and time ','Message Read date and time ','Response Received ',null,null,'Failed  reason (FWD Movement)','Failed  reason (Respond)','Message type (1 way / 2 way )'];
 document.getElementById('dGo').onclick = () => {
@@ -435,16 +450,16 @@ document.getElementById('dGo').onclick = () => {
   const info = [
     [{v:'WABA Report – Tata Tele Business Services', s:5}], [],
     [{v:'Generated on', s:6}, {v:now, s:4}],
-    [{v:'Circuit ID / Pilot Number', s:6}, T(dOrder.value || 'All orders')],
+    [{v:'Circuit ID / Pilot Number', s:6}, T(!dQ() ? 'All Circuit IDs / Pilot Numbers' : (()=>{const ids=uniq(R.map(r=>r.cid)); return ids.length===1 ? ids[0] : `Containing "${dOrder.value.trim()}" (${ids.length} IDs)`;})())],
     [{v:'Message sent date range', s:6}, T(`${fd(new Date(dFrom.value+'T00:00'))} to ${fd(new Date(dTo.value+'T00:00'))}`)],
     [{v:'Messages in report', s:6}, {v:A.s, s:3}], [{v:'Orders', s:6}, {v:A.orders, s:3}],
-    [{v:'Messages with response', s:6}, {v:A.rs, s:3}], [{v:'Messages with blank response fields', s:6}, {v:A.s - A.rs, s:3}],
-    [{v:'Messages delivered', s:6}, {v:A.d, s:3}], [{v:'Messages read', s:6}, {v:A.rd, s:3}], [{v:'Failed messages', s:6}, {v:A.f, s:3}], [],
+    [{v:'Messages delivered', s:6}, {v:A.d, s:3}], [{v:'Messages read', s:6}, {v:A.rd, s:3}],
+    [{v:'Messages with response', s:6}, {v:A.rs, s:3}], [{v:'Messages without response (delivered)', s:6}, {v:A.nr, s:3}], [{v:'Failed messages', s:6}, {v:A.f, s:3}], [],
     [{v:'Notes', s:6}, {v:'Every WABA message sent in the selected range is listed, whether or not the customer responded. Response Received columns are blank where no response was received. Sample data – fictional names, numbers and circuit IDs.', s:7}]];
   const blob = XLSX_W.build([
     {name:'Report Format', cols:[24,20,20,28,26,24,22,32,22,22,22,18,18,30,40,36,16], rows:[row1,row2,...body], merges, freezeRows:2, heights:{0:30,1:22}},
     {name:'Report Details', cols:[36,70], rows:info, heights:{13:48}}]);
-  const tag = (dOrder.value || 'All_Orders').replace(/[^A-Za-z0-9-]+/g,'_');
+  const one = uniq(R.map(r=>r.cid)); const tag = (!dQ() ? 'All_Circuit_IDs' : one.length===1 ? one[0] : 'Matching_' + dOrder.value.trim()).replace(/[^A-Za-z0-9-]+/g,'_');
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `TTBS_WABA_Report_${tag}_${dFrom.value}_to_${dTo.value}.xlsx`;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
