@@ -149,6 +149,13 @@ a.obtn{text-decoration:none}
 .daterange label{position:absolute;left:12px;top:-8px;background:#fff;padding:0 4px;font-size:11px;font-weight:600;color:var(--ink-3)}
 .rhint{margin:14px 0 0;font-size:13.5px;color:var(--ink-2)}
 .rhint.warn{color:#B42318;font-weight:600}.rhint.ok{color:var(--ink);font-weight:600}
+.scope{margin-top:14px;display:flex;align-items:center;gap:16px;border-radius:10px;padding:16px 18px;background:var(--tile)}
+.scope .sic{width:44px;height:44px;flex:none;border-radius:50%;background:#fff;color:var(--orange);display:flex;align-items:center;justify-content:center}
+.scope b{display:block;font-size:16px;color:var(--ink)}
+.scope span{font-size:13.5px;color:var(--ink-2)}
+.scope .badge{margin-left:auto;flex:none;padding:6px 14px;border-radius:999px;background:var(--orange);color:#fff;font-size:13px;font-weight:700;white-space:nowrap}
+.scope.one .badge{background:var(--navy)}
+@media(max-width:720px){.scope{flex-wrap:wrap}.scope .badge{margin-left:0}}
 .rprev{margin-top:14px;max-height:430px}
 .rprev table.fmt td{font-size:13px;padding:9px 12px}
 .pager{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:10px;font-size:13px;color:var(--ink-3)}
@@ -282,10 +289,7 @@ footer{max-width:1500px;margin:0 auto;padding:0 28px 30px;color:var(--ink-3);fon
           <button class="obtn" id="rSearch"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Search</button>
         </div>
         <p class="rhint" id="rHint">Enter a Circuit ID / Pilot Number (or leave it empty for all IDs), choose the report range and click Search.</p>
-        <div id="rResult" hidden>
-          <div class="tw rprev"><table class="fmt" id="rPrev"></table></div>
-          <div class="pager"><span id="rPinfo"></span><button class="pbtn" id="rPrevPg" aria-label="Previous page">‹</button><button class="pbtn" id="rNextPg" aria-label="Next page">›</button></div>
-        </div>
+        <div id="rResult" class="scope" hidden></div>
       </div>
       <h3 class="blk">Download Type</h3>
       <div class="seg" id="rType"><button class="on" data-v="xlsx">Excel (.xlsx)</button><button data-v="csv">CSV</button></div>
@@ -564,25 +568,20 @@ function doSearch(){
   document.getElementById('rCreateBtn').disabled = !R.length;
   document.getElementById('rResult').hidden = !R.length;
   if (!R.length) { hint.className = 'rhint warn'; hint.textContent = q.id ? `No messages found for "${q.id}" in ${rangeLabel(q)}.` : `No messages found in ${rangeLabel(q)}.`; return; }
-  hint.className = 'rhint ok';
-  hint.textContent = `${N(R.length)} message${R.length===1?'':'s'} found · ${idLabel(q,R)} · ${rangeLabel(q)}`;
+  hint.className = 'rhint'; hint.textContent = '';
   if (!rNameEdited) document.getElementById('rName').value = `WABA Report – ${idLabel(q,R)} – ${rangeLabel(q)}`;
-  renderPreview();
-}
-const PREV_HEAD = `<thead><tr><th rowspan="2">Circuit ID / Pilot Number</th><th rowspan="2">Contact Number</th><th rowspan="2">Name</th><th rowspan="2">Company Name</th><th rowspan="2">Product Name</th><th rowspan="2">Local Contact Person name</th><th rowspan="2">Local Contact Person Mobile Number</th><th rowspan="2">Message Template Name</th><th rowspan="2">Message sent date and time</th><th rowspan="2">Message delivered date and time</th><th rowspan="2">Message Read date and time</th><th colspan="3" class="grp">Response Received</th><th rowspan="2">Failed  reason (FWD Movement)</th><th rowspan="2">Failed  reason (Respond)</th><th rowspan="2">Message type (1 way / 2 way )</th></tr>
-  <tr><th class="grp2">Start date</th><th class="grp2">End date</th><th class="grp2">Anyother Response</th></tr></thead>`;
-function renderPreview(){
-  if (!rQuery) return;
-  const R = queryRows(rQuery), pages = Math.ceil(R.length/PG); rPage = Math.min(rPage, pages-1);
-  const sl = R.slice(rPage*PG, rPage*PG+PG);
-  document.getElementById('rPrev').innerHTML = PREV_HEAD + '<tbody>' + sl.map(r => `<tr><td><b>${esc(r.cid)}</b></td><td>${esc(r.cust_number)}</td><td>${esc(r.cust_name)}</td><td>${esc(r.company)}</td><td>${esc(r.product)}</td><td>${esc(r.name)}</td><td>${esc(r.mobile)}</td><td>${esc(r.template)}</td><td>${fdt(r.sent)}</td><td>${fdt(r.delivered)}</td><td>${fdt(r.read)}</td><td>${fdt(r.rstart)}</td><td>${fdt(r.rend)}</td><td>${esc(r.isResp ? r.other : '')}</td><td>${esc(r.fail)}</td><td>${esc(r.fail_resp)}</td><td>${r.type}</td></tr>`).join('') + '</tbody>';
-  document.getElementById('rPinfo').textContent = `Showing ${N(rPage*PG+1)} to ${N(rPage*PG+sl.length)} of ${N(R.length)} entries`;
-  document.getElementById('rPrevPg').disabled = rPage === 0; document.getElementById('rNextPg').disabled = rPage >= pages-1;
+  const ids = uniq(R.map(r=>r.cid)), box = document.getElementById('rResult');
+  const all = !q.id, one = ids.length === 1;
+  box.className = 'scope' + (one ? ' one' : '');
+  const icon = one ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'
+                   : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M3 7v13a2 2 0 0 0 2 2h10"/></svg>';
+  const title = one ? `The report will be downloaded for 1 Circuit ID / Pilot Number: ${ids[0]}`
+              : all ? `The report will be downloaded for all Circuit IDs / Pilot Numbers (${N(ids.length)})`
+              : `The report will be downloaded for ${N(ids.length)} Circuit IDs / Pilot Numbers matching "${q.id}"`;
+  box.innerHTML = `<div class="sic">${icon}</div><div><b>${esc(title)}</b><span>${N(R.length)} message${R.length===1?'':'s'} sent between ${rangeLabel(q)}, including messages without a response.</span></div><div class="badge">${one ? 'Single record' : all ? 'All records' : 'Multiple records'}</div>`;
 }
 document.getElementById('rSearch').onclick = doSearch;
 rOrder.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
-document.getElementById('rPrevPg').onclick = () => { rPage--; renderPreview(); };
-document.getElementById('rNextPg').onclick = () => { rPage++; renderPreview(); };
 document.getElementById('rName').addEventListener('input', () => rNameEdited = true);
 let rType = 'xlsx';
 document.querySelectorAll('#rType button').forEach(b => b.onclick = () => { rType = b.dataset.v; document.querySelectorAll('#rType button').forEach(x => x.classList.toggle('on', x === b)); });
