@@ -284,11 +284,11 @@ footer{max-width:1500px;margin:0 auto;padding:0 28px 30px;color:var(--ink-3);fon
       <h3 class="blk">Report Filter</h3>
       <div class="fbox">
         <div class="ctl">
-          <div class="srch"><label>Circuit ID / Pilot Number</label><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="rOrder" list="rOrderList" placeholder="Search – all IDs by default" autocomplete="off" spellcheck="false"><datalist id="rOrderList"></datalist></div>
+          <div class="srch"><label>Circuit ID / Pilot Number</label><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="rOrder" placeholder="Enter Circuit ID – all records by default" autocomplete="off" spellcheck="false"></div>
           <div class="daterange"><label>Report Range</label><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg><input type="date" id="rFrom" autocomplete="off" aria-label="From"><span>–</span><input type="date" id="rTo" autocomplete="off" aria-label="To"></div>
           <button class="obtn" id="rSearch"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Search</button>
         </div>
-        <p class="rhint" id="rHint">Enter a Circuit ID / Pilot Number (or leave it empty for all IDs), choose the report range and click Search.</p>
+        <p class="rhint" id="rHint"></p>
         <div id="rResult" class="scope" hidden></div>
       </div>
       <h3 class="blk">Download Type</h3>
@@ -548,7 +548,6 @@ document.querySelectorAll('[data-open-create]').forEach(b => b.onclick = () => s
 // ---------- reports: search (Circuit ID + date range only) ----------
 const rOrder = document.getElementById('rOrder'), rFrom = document.getElementById('rFrom'), rTo = document.getElementById('rTo');
 const ALL_IDS = uniq(D.map(r=>r.cid)).sort();
-document.getElementById('rOrderList').innerHTML = ALL_IDS.map(c=>`<option value="${esc(c)}"></option>`).join('');
 rOrder.value = ''; rFrom.value = iso(minD); rTo.value = iso(maxD); rFrom.min = rTo.min = iso(minD); rFrom.max = rTo.max = iso(maxD);
 let rQuery = null, rPage = 0, rNameEdited = false;
 const PG = 10;
@@ -576,9 +575,9 @@ function doSearch(){
   const icon = one ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'
                    : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/><path d="M3 7v13a2 2 0 0 0 2 2h10"/></svg>';
   const title = one ? `The report will be downloaded for 1 Circuit ID / Pilot Number: ${ids[0]}`
-              : all ? `The report will be downloaded for all Circuit IDs / Pilot Numbers (${N(ids.length)})`
+              : all ? `The report will be downloaded for all Circuit IDs / Pilot Numbers`
               : `The report will be downloaded for ${N(ids.length)} Circuit IDs / Pilot Numbers matching "${q.id}"`;
-  box.innerHTML = `<div class="sic">${icon}</div><div><b>${esc(title)}</b><span>${N(R.length)} message${R.length===1?'':'s'} sent between ${rangeLabel(q)}, including messages without a response.</span></div><div class="badge">${one ? 'Single record' : all ? 'All records' : 'Multiple records'}</div>`;
+  box.innerHTML = `<div class="sic">${icon}</div><div><b>${esc(title)}</b><span>Report range: ${rangeLabel(q)} · includes messages without a response</span></div><div class="badge">${one ? 'Single record' : all ? 'All records' : 'Multiple records'}</div>`;
 }
 document.getElementById('rSearch').onclick = doSearch;
 rOrder.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
@@ -656,6 +655,7 @@ function renderDownloads(){
   document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { DL = DL.filter(d => String(d.id) !== b.dataset.del); saveDL(); renderDownloads(); });
 }
 document.getElementById('dlSearch').addEventListener('input', renderDownloads);
+doSearch();
 try { if (localStorage.getItem('ttbs_waba_module') === 'reports') showModule('reports'); } catch(e) {}
 // ---------- definitions ----------
 document.getElementById('defTbl').innerHTML = `<thead><tr><th>Metric</th><th>How it is counted</th><th>Business interpretation</th></tr></thead><tbody>` + [
