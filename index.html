@@ -167,8 +167,8 @@ a.obtn{text-decoration:none}
 .note{margin-top:24px;border:1px solid var(--orange);background:#FFF6F0;border-radius:6px;padding:10px 14px;font-size:13px;color:var(--ink-2)}
 .cfoot{position:sticky;bottom:0;margin-top:16px;background:#fff;border-radius:12px;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -2px 12px rgba(0,47,81,.06)}
 .rname{display:flex;align-items:center;gap:8px}
-.rname{flex:1;min-width:0}
-.rname input{border:0;border-bottom:1px dashed transparent;font:inherit;font-size:16px;font-weight:600;color:var(--ink);width:min(640px,100%);padding:2px 0}
+.rname{flex:0 1 auto;min-width:0}
+.rname input{border:0;border-bottom:1px dashed transparent;font:inherit;font-size:16px;font-weight:600;color:var(--ink);width:min(640px,100%);padding:2px 0;field-sizing:content;min-width:120px;max-width:640px}
 .rname input:focus{outline:0;border-bottom-color:var(--orange)}
 .dlbar{margin-bottom:14px}
 .srch.wide{flex:1 1 380px;max-width:520px}
@@ -201,7 +201,7 @@ footer{max-width:1500px;margin:0 auto;padding:0 28px 30px;color:var(--ink-3);fon
 
 <div id="modAnalytics" class="mod">
 <nav class="tabs"><div class="in" id="nav">
-  <a href="#overview" class="on">Summary</a><a href="#funnel">WABA Funnel</a><a href="#templates">Template-Wise</a><a href="#failures">Failures</a><a href="#defs">Definitions</a>
+  <a href="#overview" class="on">Summary</a><a href="#funnel">WABA Funnel</a><a href="#templates">Template-Wise</a><a href="#defs">Definitions</a>
 </div></nav>
 <main>
 <section id="overview" class="card">
@@ -234,13 +234,6 @@ footer{max-width:1500px;margin:0 auto;padding:0 28px 30px;color:var(--ink-3);fon
   <div class="tw"><table id="tplTbl"></table></div>
 </section>
 
-<section id="failures" class="card">
-  <div class="chead"><h2>Failure Analysis</h2><p class="sub">Source field: "Failed  reason (FWD Movement)". Failed messages are delivery failures and are never counted as customer non-response.</p></div>
-  <div class="failgrid">
-    <div class="tile failtile" id="failKpi"></div>
-    <div class="tw"><table id="failTbl"></table></div>
-  </div>
-</section>
 
 <section id="defs" class="card">
   <div class="chead"><h2>Metric Definitions</h2><p class="sub">Count definitions are identical to the Excel workbook and the Scope of Work.</p></div>
@@ -251,36 +244,11 @@ footer{max-width:1500px;margin:0 auto;padding:0 28px 30px;color:var(--ink-3);fon
 
 <div id="modReports" class="mod" hidden>
 <nav class="tabs"><div class="in">
-  <a href="javascript:void 0" data-rtab="overview" class="on">Overview</a><a href="javascript:void 0" data-rtab="downloads">Downloads</a>
+  <a href="javascript:void 0" data-rtab="create" class="on">Create Report</a><a href="javascript:void 0" data-rtab="downloads">Downloads</a>
 </div></nav>
 <main>
-  <div id="rOverview">
-    <section class="card hero">
-      <div class="hero-txt">
-        <h2>Generate reports for all your WABA messages.</h2>
-        <p>Download order-wise WABA reports in the TTBS WhatsApp Report format, with delivery, read and response details for every message sent.</p>
-        <button class="lbtn" data-open-create>Create Report</button>
-      </div>
-      <svg class="hero-art" width="230" height="150" viewBox="0 0 230 150" fill="none" aria-hidden="true">
-        <rect x="70" y="14" width="120" height="124" rx="10" fill="#fff" stroke="#F56D23" stroke-width="2.5"/>
-        <rect x="86" y="32" width="60" height="8" rx="4" fill="#002F51"/><rect x="86" y="48" width="88" height="6" rx="3" fill="#D9DEE6"/><rect x="86" y="60" width="78" height="6" rx="3" fill="#D9DEE6"/>
-        <rect x="90" y="104" width="12" height="20" rx="2" fill="#F56D23"/><rect x="108" y="92" width="12" height="32" rx="2" fill="#F56D23" opacity=".8"/><rect x="126" y="80" width="12" height="44" rx="2" fill="#002F51"/><rect x="144" y="96" width="12" height="28" rx="2" fill="#1D5A85"/>
-        <circle cx="62" cy="58" r="26" fill="#fff" stroke="#002F51" stroke-width="3"/><path d="M80 77l20 20" stroke="#002F51" stroke-width="5" stroke-linecap="round"/><path d="M50 60l8 8 14-16" stroke="#F56D23" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </section>
-    <div class="rcards">
-      <button class="rcard" data-open-create>
-        <span class="rcard-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>
-        <span><b>Detailed Report</b><small>This report provides a complete record of the WhatsApp messages sent for every Circuit ID / Pilot Number, covering delivery, read and response status along with failure reasons, to help track customer communication for each order.</small></span>
-      </button>
-    </div>
-  </div>
-
-  <div id="rCreate" hidden>
-    <div class="crumb"><a href="javascript:void 0" data-rtab="overview">Overview</a><span>›</span>Detailed Report</div>
+  <div id="rCreate">
     <section class="card">
-      <h3 class="blk">Report Type</h3>
-      <div class="rtype on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg><span>Detailed Report</span></div>
       <h3 class="blk">Report Filter</h3>
       <div class="fbox">
         <div class="ctl">
@@ -375,7 +343,7 @@ function filtered(){
 // ---------- render ----------
 function render(){
   const rows = filtered(), A = agg(rows);
-  renderKpis(A); renderFunnel(A); renderTemplates(rows); renderFailures(rows);
+  renderKpis(A); renderFunnel(A); renderTemplates(rows);
 }
 const ICON = {
   orders:'<svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 4v2h10V7H7zm0 4v2h10v-2H7zm0 4v2h6v-2H7z"/></svg>',
@@ -429,19 +397,6 @@ function renderTemplates(rows){
     (R.length ? R.map(r=>`<tr><td><b>${esc(r.k)}</b></td><td>${r.type}</td><td class="num">${N(r.s)}</td><td class="num">${N(r.d)}</td><td class="num">${N(r.rd)}</td><td class="num">${N(r.rs)}</td><td class="num">${N(r.nr)}</td><td class="num">${r.f?`<span class="chip c-bad">${r.f}</span>`:0}</td></tr>`).join('') +
       `<tr class="tot"><td><b>Total</b></td><td></td><td class="num"><b>${N(T.s)}</b></td><td class="num"><b>${N(T.d)}</b></td><td class="num"><b>${N(T.rd)}</b></td><td class="num"><b>${N(T.rs)}</b></td><td class="num"><b>${N(T.nr)}</b></td><td class="num"><b>${N(T.f)}</b></td></tr>`
       : `<tr><td colspan="8" class="empty">No messages match the filters</td></tr>`) + '</tbody>';
-}
-function renderFailures(rows){
-  const F = rows.filter(r=>r.isFail).sort((a,b)=>a.sent-b.sent);
-  const g = groupBy(F,'fail');
-  const R = [...g.keys()].map(k=>({k,n:g.get(k).length})).sort((a,b)=>b.n-a.n||a.k.localeCompare(b.k));
-  const max = R.length ? R[0].n : 1;
-  const top = R[0];
-  document.getElementById('failKpi').innerHTML = `<div class="row"><div class="ic">${ICON.failed}</div><div><div class="val">${N(F.length)}</div><div class="lab">Failed Messages</div></div></div>
-    <div class="meta">Distinct failure reasons: <b>${N(R.length)}</b><br>Orders affected: <b>${N(uniq(F.map(r=>r.cid)).length)}</b>${top ? `<br>Top reason: <b>${esc(top.k)}</b> (${N(top.n)})` : ''}</div>`;
-  document.getElementById('failTbl').innerHTML = `<thead><tr><th class="num">#</th><th>Failed reason (FWD Movement)</th><th class="num">Failed messages</th><th style="width:40%"></th></tr></thead><tbody>` +
-    (R.length ? R.map((r,i)=>`<tr><td class="num">${i+1}</td><td>${esc(r.k)}</td><td class="num"><b>${N(r.n)}</b></td><td><div class="bar-cell"><i style="width:${r.n/max*100}%"></i></div></td></tr>`).join('') +
-      `<tr class="tot"><td></td><td><b>Total</b></td><td class="num"><b>${N(F.length)}</b></td><td></td></tr>`
-      : `<tr><td colspan="4" class="empty">No failed messages in the current selection</td></tr>`) + '</tbody>';
 }
 // ---------- minimal XLSX writer (no external library) ----------
 const XLSX_W = (() => {
@@ -535,15 +490,14 @@ function showModule(m){
 document.querySelectorAll('.side-btn').forEach(b => b.onclick = () => showModule(b.dataset.mod));
 
 // ---------- reports: navigation ----------
-const RPAGES = {overview:'rOverview', create:'rCreate', downloads:'rDownloads'};
+const RPAGES = {create:'rCreate', downloads:'rDownloads'};
 function showReportPage(p){
   Object.entries(RPAGES).forEach(([k,id]) => document.getElementById(id).hidden = k !== p);
-  document.querySelectorAll('#modReports nav.tabs a').forEach(a => a.classList.toggle('on', a.dataset.rtab === (p === 'create' ? 'overview' : p)));
+  document.querySelectorAll('#modReports nav.tabs a').forEach(a => a.classList.toggle('on', a.dataset.rtab === p));
   if (p === 'downloads') renderDownloads();
   scrollTo(0,0);
 }
 document.querySelectorAll('[data-rtab]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); showReportPage(a.dataset.rtab); }));
-document.querySelectorAll('[data-open-create]').forEach(b => b.onclick = () => showReportPage('create'));
 
 // ---------- reports: search (Circuit ID + date range only) ----------
 const rOrder = document.getElementById('rOrder'), rFrom = document.getElementById('rFrom'), rTo = document.getElementById('rTo');
@@ -647,11 +601,10 @@ function renderDownloads(){
   document.getElementById('dlTbl').innerHTML = `<thead><tr><th>Report Name</th><th>Circuit ID / Pilot Number</th><th>Range</th><th>Type</th><th>Requested At</th><th>Status</th><th></th></tr></thead><tbody>` +
     (L.length ? L.map(d => `<tr><td><b>${esc(d.name)}</b></td><td>${esc(d.ids)}</td><td>${rangeLabel(d.q)}</td><td>${d.type === 'csv' ? 'CSV' : 'Excel'}</td><td>${dtm(d.at)}</td>
       <td>${d.status === 'gen' ? '<span class="st gen">Generating</span>' : '<span class="st done">Completed</span>'}</td>
-      <td style="text-align:right"><button class="ibtn" data-dl="${d.id}" title="Download" ${d.status === 'gen' ? 'disabled' : ''}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg></button><button class="ibtn del" data-del="${d.id}" title="Remove"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button></td></tr>`).join('')
-      : `<tr><td colspan="7" class="empty">${DL.length ? 'No reports match your search.' : 'No reports yet. Create one from Overview → Create Report.'}</td></tr>`) + '</tbody>';
+      <td style="text-align:right"><button class="ibtn" data-dl="${d.id}" title="Download" ${d.status === 'gen' ? 'disabled' : ''}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg></button></td></tr>`).join('')
+      : `<tr><td colspan="7" class="empty">${DL.length ? 'No reports match your search.' : 'No reports yet. Create one from the Create Report tab.'}</td></tr>`) + '</tbody>';
   document.getElementById('dlInfo').textContent = L.length ? `Showing 1 to ${N(L.length)} of ${N(L.length)} entries` : '';
   document.querySelectorAll('[data-dl]').forEach(b => b.onclick = () => downloadEntry(DL.find(d => String(d.id) === b.dataset.dl)));
-  document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => { DL = DL.filter(d => String(d.id) !== b.dataset.del); saveDL(); renderDownloads(); });
 }
 document.getElementById('dlSearch').addEventListener('input', renderDownloads);
 doSearch();
@@ -665,7 +618,6 @@ document.getElementById('defTbl').innerHTML = `<thead><tr><th>Metric</th><th>How
  ['Form Responses Received','Count with a form response','Messages for which the customer submitted a response'],
  ['Messages Without Response','Delivered AND response fields blank','Customer non-response; excludes failed messages'],
  ['Failed Messages','Count with a Failed reason (FWD Movement)','Delivery failures; never a customer drop-off'],
- ['Failed reason (FWD Movement)','Failed messages counted per reason, ranked highest first','Shows why messages were not delivered and which causes to fix first'],
 ].map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('') + '</tbody>';
 // nav highlight
 const secs = [...document.querySelectorAll('#modAnalytics main section')], links = [...document.querySelectorAll('#nav a')];
